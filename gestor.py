@@ -136,6 +136,9 @@ def eliminar_cita(citas):
 
 #menu principal
 def menu():
+    global citas
+    citas = cargar_citas()   #carga el JSON al iniciar
+
     while True:
         print("----------------------------------")
         print("GESTOR DE CITAS - TALLER MECÁNICO")
