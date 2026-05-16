@@ -1,0 +1,14 @@
+[
+  {
+    "cliente": "Francis",
+    "vehiculo": "Kia",
+    "fecha": "19-11-2026",
+    "hora": "18:00"
+  },
+  {
+    "cliente": "Carlos",
+    "vehiculo": "Ferrari",
+    "fecha": "21-07-2026",
+    "hora": "16:30"
+  }
+]
