@@ -18,7 +18,7 @@ def cargar_citas():
 def guardar_citas(citas):
     with open(ARCHIVO, "w", encoding="utf-8") as f:
         json.dump(citas, f, ensure_ascii=False, indent=2)
-#valido
+#valído
 def validar_fecha(texto):
     try:
         datetime.strptime(texto, "%d-%m-%Y")
@@ -31,7 +31,26 @@ def validar_hora(texto):
         return True
     except ValueError:
         return False
-
+def pedir_texto(pregunta):
+    while True:
+        valor = input(pregunta).strip()
+        if valor:
+            return valor
+        print("  Error: Este campo no puede estar vacío.")
+def pedir_fecha(pregunta):
+    while True:
+        valor = input(pregunta).strip()
+        if validar_fecha(valor):
+            return valor
+        print("  Error: Formato de fecha inválido. Use por ejemplo: 19-11-2026.")
+def pedir_hora(pregunta):
+    while True:
+        valor = input(pregunta).strip()
+        if validar_hora(valor):
+            return valor
+        print("  Error: Formato de hora inválido. Use por ejemplo: 19:00.")
+def mostrar_cita(numero, cita):
+    print(f"  {numero}. {cita['cliente']} - {cita['vehiculo']} - {cita['fecha']} a las {cita['hora']}")
 citas = []
 
 # agg citas
@@ -40,35 +59,17 @@ def agregar_cita():
     print("AGREGAR NUEVA CITA")
     print("----------------------------------")
 
-#pedimos al user los detalles de la cita
-    cliente = input("  Nombre del cliente: ").strip()
-    vehiculo = input("  Modelo del vehículo: ").strip()
+    cliente = pedir_texto("  Ingrese el nombre del cliente: ")
+    vehiculo = pedir_texto("  Ingrese el modelo del vehículo: ")
+    fecha = pedir_fecha("  Ingrese la fecha de la cita (dd-mm-aaaa): ")
+    hora = pedir_hora("  Ingrese la hora de la cita (hh:mm): ")
 
-#valido que los campos no estén vacíos
-    if not cliente or not vehiculo:
-        print("  Error: Nombre del cliente y modelo del vehículo son obligatorios.")
-        return
-    #bucle hasta tener fecha valida
-    while True:
-        fecha = input("  Fecha de la cita (dd-mm-aaaa): ").strip()
-        if validar_fecha(fecha):
-            break
-        print("  Error: Formato de fecha inválido. Use por ejemplo: 19/11/2026.")
-    #bucle hasta tener hora valida
-    while True:
-        hora = input("  Hora de la cita (hh:mm): ").strip() 
-        if validar_hora(hora):
-            break
-        print("  Error: Formato de hora inválido. Use por ejemplo: 14:30.")
-#creo un diccionario con los detalles de la cita
-    nueva_cita = {
+    citas.append({
         "cliente": cliente,
         "vehiculo": vehiculo,
         "fecha": fecha,
         "hora": hora
-    }
-
-    citas.append(nueva_cita)
+    })
     guardar_citas(citas)
     print(f"  Cita para '{cliente}' guardada exitosamente.")
 
@@ -81,10 +82,13 @@ def ver_citas():
     if len(citas) == 0:
         print("  No hay citas programadas.")
         return
-
-    for numero, cita in enumerate(citas, start=1):
-        print(f"  {numero}. {cita['cliente']} - {cita['vehiculo']} - {cita['fecha']} a las {cita['hora']}")
-
+    #ordenar
+    ordenadas = sorted(
+        citas,
+        key=lambda c: datetime.strptime(f"{c['fecha']} {c['hora']}", "%d-%m-%Y %H:%M")
+    )
+    for numero, cita in enumerate(ordenadas, start=1):
+        mostrar_cita(numero, cita)
     print("-----------------------------------")
 
 #funcion buscar citas
@@ -105,7 +109,28 @@ def buscar_cita(citas):
     else:
         print(f"  Se encontraron {len(resultados)} cita(s) que coinciden con la búsqueda:")
         for numero, cita in enumerate(resultados, start=1):
-            print(f"  {numero}. {cita['cliente']} - {cita['vehiculo']} - {cita['fecha']} a las {cita['hora']}")
+            mostrar_cita(numero, cita)
+#borrar citas
+def eliminar_cita(citas):
+    print("----------------------------------")
+    print("ELIMINAR CITA")
+    print("----------------------------------")
+
+    if len(citas) == 0:
+        print("  No hay citas programadas.")
+        return
+
+    ver_citas()
+    try:
+        numero = int(input("  Ingrese el número de la cita que desea eliminar: ").strip())
+        if 1 <= numero <= len(citas):
+            cita_eliminada = citas.pop(numero - 1)
+            guardar_citas(citas)
+            print(f"  Cita para '{cita_eliminada['cliente']}' eliminada exitosamente.")
+        else:
+            print("  Número de cita no válido.")
+    except ValueError:
+        print("  Entrada no válida. Por favor, ingrese un número.")
 
 
 
@@ -118,7 +143,8 @@ def menu():
         print("1. Agregar nueva cita")
         print("2. Ver citas programadas")
         print("3. Buscar cita")
-        print("4. Salir")
+        print("4. Eliminar cita")
+        print("5. Salir")
         print("----------------------------------")
 
         opcion = input("Seleccione una opción: ").strip()
@@ -130,10 +156,12 @@ def menu():
         elif opcion == "3":
             buscar_cita(citas)
         elif opcion == "4":
+            eliminar_cita(citas)
+        elif opcion == "5":
             print("Saliendo del gestor de citas.")
             break
         else:
-            print("Opción no válida. Por favor, seleccione una opción del 1 al 4.")
+            print("Opción no válida. Por favor, seleccione una opción del 1 al 5.")
 
 #iniciar el programa
 if __name__ == "__main__":
