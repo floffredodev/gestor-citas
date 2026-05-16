@@ -103,7 +103,7 @@ gestor-citas/
 
 ## Autor
 
-**Francis** — Proyecto desarrollado de forma independiente como parte del aprendizaje de programación en Python.
+**Francis** — Proyecto desarrollado de forma independiente como parte de mi aprendizaje de programación en Python.
 
 ---
 
